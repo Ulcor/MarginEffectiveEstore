@@ -51,7 +51,6 @@ def randomizer(column_type, num_rows, *args):
 
         return _generate_float(num_rows, minimum_value, maximum_value, step)
 
-
     elif column_type == 'object':
         if len(args) < 1:
             raise ValueError("At least one string value should be provided.")
@@ -68,6 +67,14 @@ def randomizer(column_type, num_rows, *args):
             start_date = '2023-06-14'
             end_date = '2023-06-26'
         return _generate_date(num_rows, start_date, end_date)
+
+    elif column_type == 'order_id':
+        if len(args) == 1:
+            max_group_size = args[0]
+        else:
+            max_group_size = None
+
+        return _generate_order_id(num_rows, max_group_size)
 
     else:
         raise ValueError("Invalid column type provided.")
@@ -95,8 +102,20 @@ def _generate_date(num_rows, start_date, end_date):
     else:
         dates = [start_datetime + timedelta(days=i) for i in range(delta)]
         dates.extend([np.nan] * (num_rows - delta))
-
     return dates
+
+def _generate_order_id(num_rows, max_group_size=None):
+    order_ids = []
+    current_order_id = 1
+    counter = 0
+
+    while num_rows > 0:
+        group_size = random.randint(1, min(max_group_size, num_rows)) if max_group_size is not None else random.randint(1, num_rows)
+        order_ids.extend([current_order_id] * group_size)
+        num_rows -= group_size
+        current_order_id += 1
+
+    return order_ids
 
 
 # Use case
@@ -127,9 +146,11 @@ df['category'] = randomizer('object', days, 'milk')
 df['amount'] = randomizer('int64', days, 11, 29, 1)
 df['leftover'] = randomizer('float', days, 0.1, 0.2)
 df['sale_date'] = randomizer('datetime64[ns]', days, min_date_format, max_date_format)
+max_group_size = random.randint(1, 8) # define how many rows should be per 1 order
+df['order_id'] = randomizer('order_id', days, max_group_size)
 
 df['id'] = df.index
 
 # Check our df and save it in appropriate format
-print(df.info())
+print(df.head(40))
 df.to_excel('categories.xlsx', index=False)
