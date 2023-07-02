@@ -36,6 +36,22 @@ def randomizer(column_type, num_rows, *args):
 
         return _generate_integer(num_rows, minimum_value, maximum_value, step)
 
+    elif column_type == 'float':
+        if len(args) >= 2:
+            minimum_value = args[0]
+            maximum_value = args[1]
+        else:
+            minimum_value = 0.1
+            maximum_value = 1.0
+
+        if len(args) == 3:
+            step = args[2]
+        else:
+            step = 0.1
+
+        return _generate_float(num_rows, minimum_value, maximum_value, step)
+
+
     elif column_type == 'object':
         if len(args) < 1:
             raise ValueError("At least one string value should be provided.")
@@ -51,7 +67,6 @@ def randomizer(column_type, num_rows, *args):
         else:
             start_date = '2023-06-14'
             end_date = '2023-06-26'
-
         return _generate_date(num_rows, start_date, end_date)
 
     else:
@@ -60,6 +75,10 @@ def randomizer(column_type, num_rows, *args):
 
 def _generate_integer(num_rows, minimum_value=1, maximum_value=15, step=1):
     return [random.randrange(minimum_value, maximum_value + 1, step) for _ in range(num_rows)]
+
+
+def _generate_float(num_rows, minimum_value=0.1, maximum_value=1.0, n=1):
+    return [round(random.uniform(minimum_value, maximum_value), 1) for _ in range(num_rows)]
 
 
 def _generate_string(num_rows, *values):
@@ -89,7 +108,7 @@ column_types = ['object', 'int64', 'datetime64[ns]']
 # dataset = dataset_generator(columns, column_types, 1000)
 
 # Create empty dataset
-dataset = create_dataframe(columns=columns)
+df = create_dataframe(columns=columns)
 
 # Day count
 days = 700
@@ -104,11 +123,13 @@ print(f'The max date is {max_date}')
 # max_date = '2023-06-26'
 
 # Fill the dataset with values using the randomizer function
-dataset['category'] = randomizer('object', days, 'milk')
-dataset['amount'] = randomizer('int64', days, 11, 29, 1)
-dataset['sale_date'] = randomizer('datetime64[ns]', days, min_date_format, max_date_format)
-dataset['id'] = dataset.index
+df['category'] = randomizer('object', days, 'milk')
+df['amount'] = randomizer('int64', days, 11, 29, 1)
+df['leftover'] = randomizer('float', days, 0.1, 0.2)
+df['sale_date'] = randomizer('datetime64[ns]', days, min_date_format, max_date_format)
 
-# Check our dataset and save it in appropriate format
-print(dataset.info())
-dataset.to_excel('categories.xlsx', index=False)
+df['id'] = df.index
+
+# Check our df and save it in appropriate format
+print(df.info())
+df.to_excel('categories.xlsx', index=False)
