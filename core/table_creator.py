@@ -5,7 +5,13 @@ import numpy as np
 import openpyxl
 
 """
-This set of functions allows to quickly generate test datasets 
+This set of functions allows to quickly generate test datasets
+
+Functions: (no OOP yet, seems to work just fine as is)
+dataset_generator - creates an empty dataset
+randomized - fills column of dataset, using standard pandas column types names + custom names
+
+See use case below
 """
 
 def dataset_generator(columns, column_types, num_rows):
