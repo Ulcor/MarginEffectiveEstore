@@ -8,15 +8,20 @@ import openpyxl
 This set of functions allows to quickly generate test datasets
 
 Functions: (no OOP yet, seems to work just fine as is)
-dataset_generator - creates an empty dataset
-randomized - fills column of dataset, using standard pandas column types names + custom names
+dataset_generator - creates an empty dataset (deprecated)
+create_dataframe - creates an empty dataset (active)
 
-You can use it by importing it as a module into jupyter notebook
+randomizer  - fills column of dataset, using standard pandas column types names + custom names
+
+You can use it by importing as a module into jupyter notebook
 
 See use case below
 """
 
 def dataset_generator(columns, column_types, num_rows):
+    """
+    Generates an empty dataframe with specific column types
+    """
     dataset = {}
     for col, col_type in zip(columns, column_types):
         dataset[col] = randomizer(col_type, num_rows)
@@ -124,6 +129,27 @@ def _generate_order_id(num_rows, max_group_size=None):
         current_order_id += 1
 
     return order_ids
+
+
+def create_dataframe_list(start=1, finish=2):
+    """
+    Iterates through dataframe (static name) and prefix_1(n), when you have a lot of them
+    Use case:
+    We have df_1, df_2, ... df_17 with same datastructure
+
+    Create appended dataframe from them in 1 line
+    df_btb_final = pd.concat(create_dataframe_list(start=1, finish=18))
+    """
+    dataframe_list = []
+
+    for i in range(start, finish):
+        df_name = f"df_{i}"
+        if df_name in globals():
+            dataframe_list.append(eval(df_name))
+        else:
+            print(f"Warning: {df_name} does not exist.")
+
+    return dataframe_list
 
 
 # Use case
